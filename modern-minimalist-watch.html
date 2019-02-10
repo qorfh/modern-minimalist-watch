@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>Modern Minimalist Watch</title>
+	<style type="text/css">
+		body{
+			position: relative;
+			background: linear-gradient(90deg, #eceff5, #d9dfe5);
+		}
+		#watch{
+			position: relative;
+			width: 573px;
+			height: 724px;
+			margin:0 auto;
+		}
+		#clock-body{
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+		#clock-cover{
+			position: absolute;
+			top: 140px;
+			left: 83px;
+		}
+		#hour-hand{
+			position: absolute;
+			top: 120px;
+			left:283px;
+			transform-origin: 50% 100%;
+			transform: rotate(0deg); /*12시간 -> 360deg 1시간/30deg*/
+		}
+		#minute-hand{
+			position: absolute;
+			top: 115px;
+			left: 275px;
+			transform-origin: 50% 100%;
+			transform: rotate(0deg); /*60분/360deg 1분/6deg*/
+		}
+		#second-hand{
+			position: absolute;
+			top: 108px;
+			left: 283px;
+			transform-origin: 50% 100%;
+			transform: rotate(0deg); /*60초/360deg 1초/6deg*/
+		}
+		.today{
+			position: absolute;
+			top: 0;
+			left: 30px;
+		}
+
+	</style>
+</head>
+<body>
+	<figure id="watch">
+		<img src="https://i.postimg.cc/nL7D50hV/clock-body.png" id="clock-body" alt>
+		<img src="https://i.postimg.cc/tJ1ksFzs/hour-hand.png" id="hour-hand" alt>
+		<img src="https://i.postimg.cc/ZqTLrGct/minute-hand.png" id="minute-hand" alt>
+		<img src="https://i.postimg.cc/ncSsd6pf/second-hand.png" id="second-hand" alt>
+		<img src="https://i.postimg.cc/MHZfnwbX/clock-cover.png" id="clock-cover" alt>
+	</figure>
+	<p class="today">	
+		현재 시각 <br>
+		<time datetime="2019-12-20 08:30:45">
+			<span class="year"></span>년
+			<span class="month"></span>월
+			<span class="date"></span>일
+			<span class="day"></span>요일
+			<span class="hours"></span>시
+			<span class="minutes"></span>분
+			<span class="seconds"></span>초
+		</time>
+	</p>
+	
+
+	<script type="text/javascript">
+		var time, year, month, date, day, hours, minutes, seconds, hour_hand, minute_hand, second_hand;
+		elements();
+		settingInterval();
+		setMinutes();
+		setHours();
+
+		function elements(){
+			time = el('time', '.today');
+			year = el('.year');
+			month = el('.month');
+			date = el('.date');
+			day = el('.day');
+			hours = el('.hours');
+			minutes = el('.minutes');
+			seconds = el('.seconds');
+
+			hour_hand = el('#hour-hand');
+			minute_hand = el('#minute-hand');	
+			second_hand = el('#second-hand');
+		}
+
+		/* 시계 초침 */
+		function setSeconds(){
+			var second = Number(getSecond());
+			second_hand.style.transform='rotate('+second*6+'deg)';
+			if (second === 1){
+				setMinutes();
+			}
+		}
+		function setMinutes(){
+			var minute = Number(getMinute());
+			minute_hand.style.transform='rotate('+minute*6+'deg)';
+			if (minute === 1) {
+				setHours();
+			}
+		}
+		function setHours(){
+			var hour = Number(getHour());
+			hour_hand.style.transform='rotate('+hour*30+'deg)';
+		}
+
+		//브라우저 현재 시간
+		function updateTime(){
+			//<time> 요소의 datetime 속성 값을 ISO 날짜 정보 업데이트
+			time.setAttribute('datetime', getISOTime());
+			year.textContent = getYear();
+			month.textContent = getMonth();
+			date.textContent = getDate();
+			day.textContent = getDay();
+			hours.textContent = getHour();
+			minutes.textContent = getMinute();
+			seconds.textContent = getSecond();
+		}
+		function update(){
+			updateTime();
+			setSeconds();
+		}
+
+		function settingInterval(){
+			window.setInterval(update, 1000);
+		}
+
+		/* 시간 설정 함수 */
+		function getISOTime(){
+			var date = new Date();
+			return date.toISOString();
+		};
+		function getYear(){
+			var date = new Date();
+			return date.getFullYear();
+		}
+		function getMonth(){
+			var date = new Date();
+			return date.getMonth() + 1;
+		}
+		function getDate(){
+			var date = new Date();
+			return date.getDate();
+		}
+		function getDay(){
+			var date = new Date();
+			var day = date.getDay();
+			switch(day){
+				case 0: day = '일';
+				break;
+				case 1: day = '월';
+				break;
+				case 2: day = '화';
+				break;
+				case 3: day = '수';
+				break;
+				case 4: day = '목';
+				break;
+				case 5: day = '금';
+				break;
+				case 6: day = '토';
+				break;
+			}
+			return day;
+		}
+		function getHour(){
+			var date = new Date();
+			return date.getHours();
+		};
+		function getMinute(){
+			var date = new Date();
+			return date.getMinutes();
+		};
+		function getSecond(){
+			var date = new Date();
+			return date.getSeconds();
+		};	
+
+
+		function els(selector, context) {
+		  // selector 유형이 문자가 아니거나, selector 공백을 제거한 길이가 0일 경우 결과 값 null 반환
+		  if (typeof selector !== 'string' || selector.trim().length === 0) { return null; }
+		  // context 값이 존재하고, 노드 유형이 요소 노드(1)가 아니라면... context 변수에 el() 함수를 통해 문서 객체 참조.
+		  if (context && context.nodeType !== document.ELEMENT_NODE) { context = el(String(context)); }
+		  // context 값이 undefined, null 일 경우, context는 document 값을 참조.
+		  if (!context) { context = document; }
+		  return context.querySelectorAll(selector);
+		}
+
+		function el(selector, context) {
+		  if (typeof selector !== 'string' || selector.trim().length === 0) { return null; }
+		  if (context && context.nodeType !== document.ELEMENT_NODE) { context = el(String(context)); }
+		  if (!context) { context = document; }
+		  return context.querySelector(selector);
+		}
+	</script>
+
+
+		
+
+</body>
+</html>
